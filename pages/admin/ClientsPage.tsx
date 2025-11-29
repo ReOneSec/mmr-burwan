@@ -16,6 +16,7 @@ import { safeFormatDateObject } from '../../utils/dateUtils';
 
 interface ClientWithApplication {
   userId: string;
+  email: string;
   profile: Profile | null;
   application: Application | null;
 }
@@ -49,6 +50,9 @@ const ClientsPage: React.FC = () => {
         const userIds = [...new Set(applications.map(app => app.userId))]
           .filter(userId => !mockUserIds.includes(userId));
         
+        // Fetch user emails in batch
+        const emailMap = await adminService.getUserEmails(userIds);
+        
         // Load profiles and applications for each user
         const clientsData = await Promise.all(
           userIds.map(async (userId) => {
@@ -59,6 +63,7 @@ const ClientsPage: React.FC = () => {
             
             return {
               userId,
+              email: emailMap[userId] || 'N/A',
               profile,
               application,
             };
@@ -92,14 +97,22 @@ const ClientsPage: React.FC = () => {
       
       // Reload clients
       const applications = await adminService.getAllApplications();
-      const userIds = [...new Set(applications.map(app => app.userId))];
+      const mockUserIds = ['user-1', 'admin-1'];
+      const userIds = [...new Set(applications.map(app => app.userId))]
+        .filter(userId => !mockUserIds.includes(userId));
+      const emailMap = await adminService.getUserEmails(userIds);
       const clientsData = await Promise.all(
         userIds.map(async (userId) => {
           const [profile, application] = await Promise.all([
             profileService.getProfile(userId),
             applicationService.getApplication(userId),
           ]);
-          return { userId, profile, application };
+          return { 
+            userId, 
+            email: emailMap[userId] || 'N/A',
+            profile, 
+            application 
+          };
         })
       );
       setClients(clientsData);
@@ -120,7 +133,7 @@ const ClientsPage: React.FC = () => {
         const name = client.profile 
           ? `${client.profile.firstName} ${client.profile.lastName}`.toLowerCase()
           : '';
-        const email = client.profile?.userId || '';
+        const email = client.email || '';
         return name.includes(searchTerm.toLowerCase()) || 
                email.toLowerCase().includes(searchTerm.toLowerCase());
       });
@@ -215,7 +228,7 @@ const ClientsPage: React.FC = () => {
                 const name = client.profile 
                   ? `${client.profile.firstName} ${client.profile.lastName}`
                   : 'Unknown User';
-                const email = client.profile?.userId || 'N/A';
+                const email = client.email || 'N/A';
                 
                 return (
                   <tr key={client.userId} className="border-b border-gray-100 hover:bg-gray-50">

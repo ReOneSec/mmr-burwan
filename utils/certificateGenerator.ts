@@ -2,6 +2,7 @@ import { Application } from '../types';
 import { pdf } from '@react-pdf/renderer';
 import React from 'react';
 import { CertificatePDF } from '../components/certificate/CertificatePDF';
+import { documentService } from '../services/documents';
 
 // Generate random names for testing
 const generateRandomName = () => {
@@ -24,31 +25,39 @@ const formatAadhaar = (aadhaar: string | undefined): string => {
 };
 
 // Format address in the exact format: "VILL- UPARIDHA, P.O- MUKUNDAPUR, P.S- BERHAMPORE, DIST- MURSHIDABAD, WEST BENGAL, PIN- 742187"
+// Uses the exact address fields from the application form
 const formatAddress = (address: any): string => {
-  if (!address || (!address.street && !address.city)) return 'N/A';
+  if (!address) return 'N/A';
+  
   const parts = [];
   
-  // Extract village name (remove VILL- prefix if present)
-  const village = address.street ? address.street.toUpperCase().replace(/^VILL-?\s*/i, '').trim() : '';
-  if (village) parts.push(`VILL- ${village}`);
+  // Village/Street - use villageStreet field first, fallback to street
+  const village = address.villageStreet || address.street || '';
+  if (village) {
+    // Remove any existing VILL- prefix and add it properly
+    const cleanVillage = village.toUpperCase().replace(/^VILL-?\s*/i, '').trim();
+    parts.push(`VILL- ${cleanVillage}`);
+  }
   
-  // P.O (Post Office) - city
-  if (address.city) parts.push(`P.O- ${address.city.toUpperCase()}`);
+  // Post Office - use postOffice field first, fallback to city
+  const postOffice = address.postOffice || address.city || '';
+  if (postOffice) parts.push(`P.O- ${postOffice.toUpperCase()}`);
   
-  // P.S (Police Station) - usually state or city
-  const ps = address.state || address.city || '';
-  if (ps) parts.push(`P.S- ${ps.toUpperCase()}`);
+  // Police Station - use policeStation field
+  const policeStation = address.policeStation || '';
+  if (policeStation) parts.push(`P.S- ${policeStation.toUpperCase()}`);
   
-  // DIST (District) - usually state
-  const district = address.state || address.city || '';
+  // District - use district field first, fallback to city
+  const district = address.district || address.city || '';
   if (district) parts.push(`DIST- ${district.toUpperCase()}`);
   
-  // Always add WEST BENGAL
+  // State - always use WEST BENGAL as this website operates only in West Bengal
   parts.push('WEST BENGAL');
   
   // PIN code
   if (address.zipCode) parts.push(`PIN- ${address.zipCode}`);
   
+  // Only show if we have at least village/street info
   return parts.length > 0 ? parts.join(', ') : 'N/A';
 };
 
@@ -144,11 +153,64 @@ export const generateCertificateData = (application: Application) => {
 };
 
 
+// Helper function to convert image URL to base64 data URL
+const imageUrlToDataUrl = async (imageUrl: string): Promise<string | null> => {
+  try {
+    // If it's already a data URL, return it
+    if (imageUrl.startsWith('data:')) {
+      return imageUrl;
+    }
+
+    // Fetch the image
+    const response = await fetch(imageUrl);
+    if (!response.ok) {
+      console.error('Failed to fetch image:', response.statusText);
+      return null;
+    }
+
+    // Convert to blob
+    const blob = await response.blob();
+    
+    // Convert blob to base64
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+  } catch (error) {
+    console.error('Error converting image to data URL:', error);
+    return null;
+  }
+};
+
 export const downloadCertificate = async (application: Application) => {
   const certificateData = generateCertificateData(application);
   
-  // Generate PDF using React PDF
-  const doc = React.createElement(CertificatePDF, { application, certificateData });
+  // Find joint photograph and convert to data URL if it exists
+  const jointPhotograph = application.documents?.find(
+    (doc) => doc.type === 'photo' && doc.belongsTo === 'joint'
+  );
+  
+  let jointPhotoDataUrl: string | null = null;
+  if (jointPhotograph) {
+    try {
+      // Get signed URL for the document to ensure it's accessible
+      const signedUrl = await documentService.getSignedUrl(jointPhotograph.id);
+      // Convert to data URL for PDF rendering
+      jointPhotoDataUrl = await imageUrlToDataUrl(signedUrl);
+    } catch (error) {
+      console.error('Failed to load joint photograph:', error);
+      // Continue without photo if it fails
+    }
+  }
+  
+  // Generate PDF using React PDF with the data URL
+  const doc = React.createElement(CertificatePDF, { 
+    application, 
+    certificateData,
+    jointPhotoDataUrl // Pass the data URL instead of URL
+  });
   const blob = await pdf(doc).toBlob();
   
   // Create download link

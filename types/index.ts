@@ -165,7 +165,7 @@ export interface Notification {
   userId: string;
   applicationId?: string;
   documentId?: string;
-  type: 'document_rejected' | 'document_approved' | 'application_approved' | 'application_rejected' | 'other';
+  type: 'document_rejected' | 'document_approved' | 'application_approved' | 'application_rejected' | 'application_verified' | 'other';
   title: string;
   message: string;
   read: boolean;

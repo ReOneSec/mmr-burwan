@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { X, Bell, CheckCircle, XCircle, FileText, Info } from 'lucide-react';
+import { X, Bell, CheckCircle, XCircle, FileText, Info, Award } from 'lucide-react';
 import { notificationService } from '../../services/notifications';
 import { Notification } from '../../types';
 import Button from './Button';
@@ -31,6 +31,9 @@ const NotificationPanel: React.FC<NotificationPanelProps> = ({ userId, isOpen, o
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
+      // Don't close the panel if the modal is open (clicks on modal are outside panelRef)
+      if (isModalOpen) return;
+      
       if (panelRef.current && !panelRef.current.contains(event.target as Node)) {
         onClose();
       }
@@ -43,7 +46,7 @@ const NotificationPanel: React.FC<NotificationPanelProps> = ({ userId, isOpen, o
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [isOpen, onClose]);
+  }, [isOpen, onClose, isModalOpen]);
 
   const loadNotifications = async () => {
     setIsLoading(true);
@@ -100,6 +103,8 @@ const NotificationPanel: React.FC<NotificationPanelProps> = ({ userId, isOpen, o
         return <CheckCircle size={18} className="text-green-600" />;
       case 'application_rejected':
         return <XCircle size={18} className="text-rose-600" />;
+      case 'application_verified':
+        return <Award size={18} className="text-gold-600" />;
       default:
         return <Info size={18} className="text-blue-600" />;
     }
@@ -140,7 +145,7 @@ const NotificationPanel: React.FC<NotificationPanelProps> = ({ userId, isOpen, o
 
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-end p-4 pt-20 md:pt-24">
-      <div className="fixed inset-0 bg-black/10" onClick={onClose} />
+      <div className="fixed inset-0 bg-black/10" onClick={() => !isModalOpen && onClose()} />
       <div
         ref={panelRef}
         className="relative z-10 w-full max-w-md bg-white rounded-2xl shadow-2xl border border-gray-200 animate-fade-up max-h-[calc(100vh-8rem)] flex flex-col"

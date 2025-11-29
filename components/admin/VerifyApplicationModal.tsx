@@ -5,7 +5,7 @@ import { z } from 'zod';
 import Modal from '../ui/Modal';
 import Input from '../ui/Input';
 import Button from '../ui/Button';
-import { CheckCircle } from 'lucide-react';
+import { CheckCircle, AlertTriangle, XCircle } from 'lucide-react';
 
 // Generate roman numerals from 1 to 50
 const generateRomanNumerals = (): string[] => {
@@ -95,6 +95,14 @@ interface VerifyApplicationModalProps {
   applicationId: string;
   currentCertificateNumber?: string;
   currentRegistrationDate?: string;
+  documents?: Array<{
+    id: string;
+    type: string;
+    name: string;
+    status: 'pending' | 'approved' | 'rejected';
+    belongsTo?: 'user' | 'partner' | 'joint';
+    isReuploaded?: boolean;
+  }>;
 }
 
 const VerifyApplicationModal: React.FC<VerifyApplicationModalProps> = ({
@@ -104,8 +112,47 @@ const VerifyApplicationModal: React.FC<VerifyApplicationModalProps> = ({
   applicationId,
   currentCertificateNumber,
   currentRegistrationDate,
+  documents = [],
 }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Check for rejected documents that haven't been re-uploaded
+  const rejectedDocuments = useMemo(() => {
+    return documents.filter(
+      (doc) => doc.status === 'rejected' && !doc.isReuploaded
+    );
+  }, [documents]);
+
+  const hasRejectedDocuments = rejectedDocuments.length > 0;
+
+  // Get document type label
+  const getDocumentTypeLabel = (type: string): string => {
+    const labels: Record<string, string> = {
+      aadhaar: 'Aadhaar Card',
+      tenth_certificate: '10th Certificate',
+      voter_id: 'Voter ID',
+      id: 'ID Document',
+      photo: 'Photo',
+      certificate: 'Certificate',
+      other: 'Other',
+    };
+    return labels[type] || type;
+  };
+
+  // Get person label (groom/bride/joint)
+  const getPersonLabel = (belongsTo?: string): string => {
+    if (!belongsTo) return '';
+    switch (belongsTo) {
+      case 'user':
+        return 'Groom\'s';
+      case 'partner':
+        return 'Bride\'s';
+      case 'joint':
+        return 'Joint';
+      default:
+        return '';
+    }
+  };
 
   const parsedCert = useMemo(() => parseCertificateNumber(currentCertificateNumber), [currentCertificateNumber]);
 
@@ -158,6 +205,11 @@ const VerifyApplicationModal: React.FC<VerifyApplicationModalProps> = ({
   }, [isOpen, currentCertificateNumber, currentRegistrationDate, reset]);
 
   const onSubmit = async (data: any) => {
+    // Prevent submission if there are rejected documents
+    if (hasRejectedDocuments) {
+      return;
+    }
+
     setIsSubmitting(true);
     try {
       // Construct the full certificate number
@@ -165,8 +217,10 @@ const VerifyApplicationModal: React.FC<VerifyApplicationModalProps> = ({
       await onConfirm(fullCertificateNumber, data.registrationDate);
       reset();
       onClose();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Verification failed:', error);
+      // Error will be handled by the parent component (ApplicationDetailsPage)
+      // which will show a toast notification
     } finally {
       setIsSubmitting(false);
     }
@@ -186,6 +240,39 @@ const VerifyApplicationModal: React.FC<VerifyApplicationModalProps> = ({
     >
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         <div className="space-y-6">
+          {/* Rejected Documents Warning */}
+          {hasRejectedDocuments && (
+            <div className="bg-rose-50 border-2 border-rose-300 rounded-xl p-4">
+              <div className="flex items-start gap-3">
+                <XCircle size={24} className="text-rose-600 flex-shrink-0 mt-0.5" />
+                <div className="flex-1">
+                  <h3 className="font-semibold text-rose-900 mb-2">
+                    Cannot Verify Application
+                  </h3>
+                  <p className="text-sm text-rose-800 mb-3">
+                    The following document(s) have been rejected and the client has not re-uploaded them yet. Please wait for the client to re-upload these documents before verifying the application.
+                  </p>
+                  <div className="space-y-2">
+                    {rejectedDocuments.map((doc) => {
+                      const personLabel = getPersonLabel(doc.belongsTo);
+                      const documentLabel = getDocumentTypeLabel(doc.type);
+                      const documentTitle = personLabel 
+                        ? `${personLabel} ${documentLabel}`
+                        : documentLabel;
+                      return (
+                        <div key={doc.id} className="flex items-center gap-2 text-sm text-rose-700 bg-rose-100 rounded-lg px-3 py-2">
+                          <AlertTriangle size={16} className="flex-shrink-0" />
+                          <span className="font-medium">{documentTitle}</span>
+                          <span className="text-rose-600">({doc.name})</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Certificate Number Preview */}
           {certificateNumberPreview && (
             <div className="bg-gold-50 border border-gold-200 rounded-lg p-3">
@@ -363,11 +450,11 @@ const VerifyApplicationModal: React.FC<VerifyApplicationModalProps> = ({
             type="submit"
             variant="primary"
             isLoading={isSubmitting}
-            disabled={isSubmitting}
+            disabled={isSubmitting || hasRejectedDocuments}
             className="flex-1"
           >
             <CheckCircle size={18} className="mr-2" />
-            Verify Application
+            {hasRejectedDocuments ? 'Cannot Verify (Rejected Documents)' : 'Verify Application'}
           </Button>
         </div>
       </form>

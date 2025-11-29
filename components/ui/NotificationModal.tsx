@@ -1,9 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Modal from './Modal';
-import { XCircle, CheckCircle, Info, Upload } from 'lucide-react';
+import { XCircle, CheckCircle, Info, Upload, Award, Download, Loader2 } from 'lucide-react';
 import { Notification } from '../../types';
 import { safeFormatDate } from '../../utils/dateUtils';
+import { applicationService } from '../../services/application';
+import { downloadCertificate } from '../../utils/certificateGenerator';
+import { useAuth } from '../../contexts/AuthContext';
 import Button from './Button';
 
 interface NotificationModalProps {
@@ -22,6 +25,9 @@ const NotificationModal: React.FC<NotificationModalProps> = ({
   onNavigate,
 }) => {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const [isDownloading, setIsDownloading] = useState(false);
+  const [downloadError, setDownloadError] = useState<string | null>(null);
 
   if (!notification || !isOpen) return null;
 
@@ -35,6 +41,8 @@ const NotificationModal: React.FC<NotificationModalProps> = ({
         return <CheckCircle size={24} className="text-green-600" />;
       case 'application_rejected':
         return <XCircle size={24} className="text-rose-600" />;
+      case 'application_verified':
+        return <Award size={24} className="text-gold-600" />;
       default:
         return <Info size={24} className="text-blue-600" />;
     }
@@ -83,10 +91,17 @@ const NotificationModal: React.FC<NotificationModalProps> = ({
           </p>
         </div>
 
+        {/* Download Error Message */}
+        {downloadError && (
+          <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl">
+            <p className="text-sm text-rose-700">{downloadError}</p>
+          </div>
+        )}
+
         {/* Action Buttons */}
         <div className="flex items-center gap-3 pt-4 border-t border-gray-200">
           <Button
-            variant="primary"
+            variant="outline"
             onClick={handleClose}
             className="flex-1"
           >
@@ -114,6 +129,58 @@ const NotificationModal: React.FC<NotificationModalProps> = ({
             >
               <Upload size={16} className="mr-2" />
               Upload Document
+            </Button>
+          )}
+          {notification.type === 'application_verified' && user && (
+            <Button
+              variant="primary"
+              disabled={isDownloading}
+              onClick={async () => {
+                if (!user) return;
+                
+                setIsDownloading(true);
+                setDownloadError(null);
+                
+                try {
+                  // Fetch the user's application (same as dashboard does)
+                  const application = await applicationService.getApplication(user.id);
+                  
+                  if (!application) {
+                    throw new Error('Application not found');
+                  }
+                  
+                  if (!application.verified) {
+                    throw new Error('Application is not yet verified');
+                  }
+                  
+                  // Download the certificate
+                  await downloadCertificate(application);
+                  
+                  // Close modal after successful download
+                  onClose();
+                  if (onNavigate) {
+                    onNavigate();
+                  }
+                } catch (error: any) {
+                  console.error('Failed to download certificate:', error);
+                  setDownloadError(error.message || 'Failed to download certificate');
+                } finally {
+                  setIsDownloading(false);
+                }
+              }}
+              className="flex-1 bg-gold-500 hover:bg-gold-600"
+            >
+              {isDownloading ? (
+                <>
+                  <Loader2 size={16} className="mr-2 animate-spin" />
+                  Downloading...
+                </>
+              ) : (
+                <>
+                  <Download size={16} className="mr-2" />
+                  Download Certificate
+                </>
+              )}
             </Button>
           )}
         </div>

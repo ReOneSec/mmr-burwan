@@ -273,15 +273,58 @@ const ApplicationDetailsPage: React.FC = () => {
                 {application.verified ? 'Verified' : 'Unverified'}
               </Badge>
             )}
-            {!application.verified && (
-              <Button
-                variant="primary"
-                onClick={() => setIsVerifyModalOpen(true)}
-              >
-                <CheckCircle size={18} className="mr-2" />
-                Verify Application
-              </Button>
-            )}
+            {!application.verified && (() => {
+              // Check for rejected documents that haven't been re-uploaded
+              const rejectedDocuments = documents.filter(
+                (doc) => doc.status === 'rejected' && !doc.isReuploaded
+              );
+              const hasRejectedDocuments = rejectedDocuments.length > 0;
+
+              return (
+                <Button
+                  variant="primary"
+                  onClick={() => {
+                    if (hasRejectedDocuments) {
+                      const docNames = rejectedDocuments.map(doc => {
+                        const getPersonLabel = (belongsTo?: string) => {
+                          if (!belongsTo) return '';
+                          switch (belongsTo) {
+                            case 'user': return 'Groom\'s';
+                            case 'partner': return 'Bride\'s';
+                            case 'joint': return 'Joint';
+                            default: return '';
+                          }
+                        };
+                        const getDocumentTypeLabel = (type: string) => {
+                          const labels: Record<string, string> = {
+                            aadhaar: 'Aadhaar Card',
+                            tenth_certificate: '10th Certificate',
+                            voter_id: 'Voter ID',
+                            id: 'ID Document',
+                            photo: 'Photo',
+                            certificate: 'Certificate',
+                            other: 'Other',
+                          };
+                          return labels[type] || type;
+                        };
+                        const personLabel = getPersonLabel(doc.belongsTo);
+                        const docLabel = getDocumentTypeLabel(doc.type);
+                        return personLabel ? `${personLabel} ${docLabel}` : docLabel;
+                      }).join(', ');
+                      showToast(
+                        `Cannot verify application. The following document(s) have been rejected and not re-uploaded: ${docNames}`,
+                        'error'
+                      );
+                    } else {
+                      setIsVerifyModalOpen(true);
+                    }
+                  }}
+                >
+                  <CheckCircle size={18} className="mr-2" />
+                  Verify Application
+                </Button>
+              );
+            })()}
             {application.verified && application.certificateNumber && (
               <div className="text-sm text-gray-600">
                 <p>Certificate: {application.certificateNumber}</p>
@@ -529,10 +572,14 @@ const ApplicationDetailsPage: React.FC = () => {
                       <label className="block text-xs font-medium text-gray-600 mb-1">ZIP Code</label>
                       <Input
                         value={userAddress.zipCode || ''}
-                        onChange={(e) => setEditForm({
-                          ...editForm,
-                          userAddress: { ...userAddress, zipCode: e.target.value }
-                        })}
+                        maxLength={6}
+                        onChange={(e) => {
+                          const value = e.target.value.replace(/\D/g, '').slice(0, 6);
+                          setEditForm({
+                            ...editForm,
+                            userAddress: { ...userAddress, zipCode: value }
+                          });
+                        }}
                         placeholder="Enter ZIP code"
                       />
                     </div>
@@ -626,10 +673,14 @@ const ApplicationDetailsPage: React.FC = () => {
                       <label className="block text-xs font-medium text-gray-600 mb-1">ZIP Code</label>
                       <Input
                         value={userCurrentAddress.zipCode || ''}
-                        onChange={(e) => setEditForm({
-                          ...editForm,
-                          userCurrentAddress: { ...userCurrentAddress, zipCode: e.target.value }
-                        })}
+                        maxLength={6}
+                        onChange={(e) => {
+                          const value = e.target.value.replace(/\D/g, '').slice(0, 6);
+                          setEditForm({
+                            ...editForm,
+                            userCurrentAddress: { ...userCurrentAddress, zipCode: value }
+                          });
+                        }}
                         placeholder="Enter ZIP code"
                       />
                     </div>
@@ -730,10 +781,14 @@ const ApplicationDetailsPage: React.FC = () => {
                       <label className="block text-xs font-medium text-gray-600 mb-1">ZIP Code</label>
                       <Input
                         value={partnerAddress.zipCode || ''}
-                        onChange={(e) => setEditForm({
-                          ...editForm,
-                          partnerAddress: { ...partnerAddress, zipCode: e.target.value }
-                        })}
+                        maxLength={6}
+                        onChange={(e) => {
+                          const value = e.target.value.replace(/\D/g, '').slice(0, 6);
+                          setEditForm({
+                            ...editForm,
+                            partnerAddress: { ...partnerAddress, zipCode: value }
+                          });
+                        }}
                         placeholder="Enter ZIP code"
                       />
                     </div>
@@ -827,10 +882,14 @@ const ApplicationDetailsPage: React.FC = () => {
                       <label className="block text-xs font-medium text-gray-600 mb-1">ZIP Code</label>
                       <Input
                         value={partnerCurrentAddress.zipCode || ''}
-                        onChange={(e) => setEditForm({
-                          ...editForm,
-                          partnerCurrentAddress: { ...partnerCurrentAddress, zipCode: e.target.value }
-                        })}
+                        maxLength={6}
+                        onChange={(e) => {
+                          const value = e.target.value.replace(/\D/g, '').slice(0, 6);
+                          setEditForm({
+                            ...editForm,
+                            partnerCurrentAddress: { ...partnerCurrentAddress, zipCode: value }
+                          });
+                        }}
                         placeholder="Enter ZIP code"
                       />
                     </div>
@@ -1297,6 +1356,7 @@ const ApplicationDetailsPage: React.FC = () => {
         applicationId={application?.id || ''}
         currentCertificateNumber={application?.certificateNumber}
         currentRegistrationDate={application?.registrationDate}
+        documents={documents}
       />
 
       {/* Reject Document Modal */}

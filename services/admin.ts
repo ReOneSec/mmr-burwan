@@ -202,6 +202,62 @@ export const adminService = {
     certificateNumber: string,
     registrationDate: string
   ): Promise<Application> {
+    // First, check for rejected documents that haven't been re-uploaded
+    const { data: documentsData, error: docsError } = await supabase
+      .from('documents')
+      .select('id, type, name, status, belongs_to, is_reuploaded')
+      .eq('application_id', applicationId)
+      .eq('status', 'rejected');
+
+    if (docsError) {
+      throw new Error(`Failed to check documents: ${docsError.message}`);
+    }
+
+    // Filter out rejected documents that haven't been re-uploaded
+    const rejectedNotReuploaded = (documentsData || []).filter(
+      (doc) => !doc.is_reuploaded
+    );
+
+    if (rejectedNotReuploaded.length > 0) {
+      // Get document type labels
+      const getDocumentTypeLabel = (type: string): string => {
+        const labels: Record<string, string> = {
+          aadhaar: 'Aadhaar Card',
+          tenth_certificate: '10th Certificate',
+          voter_id: 'Voter ID',
+          id: 'ID Document',
+          photo: 'Photo',
+          certificate: 'Certificate',
+          other: 'Other',
+        };
+        return labels[type] || type;
+      };
+
+      const getPersonLabel = (belongsTo?: string): string => {
+        if (!belongsTo) return '';
+        switch (belongsTo) {
+          case 'user':
+            return 'Groom\'s';
+          case 'partner':
+            return 'Bride\'s';
+          case 'joint':
+            return 'Joint';
+          default:
+            return '';
+        }
+      };
+
+      const rejectedDocNames = rejectedNotReuploaded.map((doc) => {
+        const personLabel = getPersonLabel(doc.belongs_to);
+        const docLabel = getDocumentTypeLabel(doc.type);
+        return personLabel ? `${personLabel} ${docLabel}` : docLabel;
+      }).join(', ');
+
+      throw new Error(
+        `Cannot verify application. The following document(s) have been rejected and not re-uploaded: ${rejectedDocNames}. Please wait for the client to re-upload these documents.`
+      );
+    }
+
     const { data, error } = await supabase
       .from('applications')
       .update({
@@ -220,6 +276,26 @@ export const adminService = {
 
     if (error) {
       throw new Error(error.message);
+    }
+
+    // Get user details for personalized notification
+    const userDetails = data.user_details as any;
+    const userName = userDetails?.firstName 
+      ? `${userDetails.firstName} ${userDetails.lastName || ''}`.trim()
+      : 'Applicant';
+
+    // Create notification for the user that their application is verified
+    try {
+      await notificationService.createNotification({
+        userId: data.user_id,
+        applicationId: applicationId,
+        type: 'application_verified',
+        title: '🎉 Congratulations! Your Application is Verified',
+        message: `Dear ${userName}, your marriage registration application has been verified successfully! Certificate Number: ${certificateNumber}. You can now download your Marriage Certificate from your dashboard.`,
+      });
+    } catch (notificationError: any) {
+      // Log error but don't fail the verification - notification is not critical
+      console.error('Failed to create verification notification:', notificationError);
     }
 
     await auditService.createLog({
@@ -317,5 +393,28 @@ export const adminService = {
     });
 
     return applicationService.mapApplication(data);
+  },
+
+  async getUserEmails(userIds: string[]): Promise<Record<string, string>> {
+    // Call the database function to get user emails
+    const { data, error } = await supabase.rpc('get_user_emails', {
+      user_ids: userIds,
+    });
+
+    if (error) {
+      console.error('Failed to fetch user emails:', error);
+      // Return empty object on error to prevent breaking the UI
+      return {};
+    }
+
+    // Convert array to record (map) for easy lookup
+    const emailMap: Record<string, string> = {};
+    if (data) {
+      data.forEach((item: { user_id: string; email: string }) => {
+        emailMap[item.user_id] = item.email || 'N/A';
+      });
+    }
+
+    return emailMap;
   },
 };

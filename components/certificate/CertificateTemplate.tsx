@@ -2,6 +2,40 @@ import React from 'react';
 import { Application } from '../../types';
 import { safeFormatDate } from '../../utils/dateUtils';
 
+// Format address using exact fields from the application form
+const formatAddressDisplay = (address: any): string => {
+  if (!address) return 'N/A';
+  
+  const parts = [];
+  
+  // Village/Street - use villageStreet field first, fallback to street
+  const village = address.villageStreet || address.street || '';
+  if (village) {
+    const cleanVillage = village.toUpperCase().replace(/^VILL-?\s*/i, '').trim();
+    parts.push(`VILL- ${cleanVillage}`);
+  }
+  
+  // Post Office - use postOffice field first, fallback to city
+  const postOffice = address.postOffice || address.city || '';
+  if (postOffice) parts.push(`P.O- ${postOffice.toUpperCase()}`);
+  
+  // Police Station - use policeStation field
+  const policeStation = address.policeStation || '';
+  if (policeStation) parts.push(`P.S- ${policeStation.toUpperCase()}`);
+  
+  // District - use district field first, fallback to city
+  const district = address.district || address.city || '';
+  if (district) parts.push(`DIST- ${district.toUpperCase()}`);
+  
+  // State - always use WEST BENGAL as this website operates only in West Bengal
+  parts.push('WEST BENGAL');
+  
+  // PIN code
+  if (address.zipCode) parts.push(`PIN- ${address.zipCode}`);
+  
+  return parts.length > 0 ? parts.join(', ') : 'N/A';
+};
+
 interface CertificateTemplateProps {
   application: Application;
   verificationId: string;
@@ -196,11 +230,11 @@ const CertificateTemplate: React.FC<CertificateTemplateProps> = ({
               <p><strong>Phone No:</strong> {userDetails.mobileNumber || 'N/A'}</p>
               <p style={{ marginTop: '8px' }}><strong>Present Address:</strong></p>
               <p style={{ fontSize: '10px', marginLeft: '10px' }}>
-                {userCurrentAddress.street || userAddress.street || 'N/A'}, {userCurrentAddress.city || userAddress.city || ''}, {userCurrentAddress.state || userAddress.state || ''}, {userCurrentAddress.zipCode || userAddress.zipCode || ''}
+                {formatAddressDisplay(userCurrentAddress.villageStreet ? userCurrentAddress : userAddress)}
               </p>
               <p style={{ marginTop: '8px' }}><strong>Permanent Address:</strong></p>
               <p style={{ fontSize: '10px', marginLeft: '10px' }}>
-                {userAddress.street || 'N/A'}, {userAddress.city || ''}, {userAddress.state || ''}, {userAddress.zipCode || ''}
+                {formatAddressDisplay(userAddress)}
               </p>
             </div>
           </div>
@@ -231,11 +265,11 @@ const CertificateTemplate: React.FC<CertificateTemplateProps> = ({
               <p><strong>Phone No:</strong> {partnerDetails.mobileNumber || 'N/A'}</p>
               <p style={{ marginTop: '8px' }}><strong>Present Address:</strong></p>
               <p style={{ fontSize: '10px', marginLeft: '10px' }}>
-                {partnerCurrentAddress.street || partnerAddress.street || 'N/A'}, {partnerCurrentAddress.city || partnerAddress.city || ''}, {partnerCurrentAddress.state || partnerAddress.state || ''}, {partnerCurrentAddress.zipCode || partnerAddress.zipCode || ''}
+                {formatAddressDisplay(partnerCurrentAddress.villageStreet ? partnerCurrentAddress : partnerAddress)}
               </p>
               <p style={{ marginTop: '8px' }}><strong>Permanent Address:</strong></p>
               <p style={{ fontSize: '10px', marginLeft: '10px' }}>
-                {partnerAddress.street || 'N/A'}, {partnerAddress.city || ''}, {partnerAddress.state || ''}, {partnerAddress.zipCode || ''}
+                {formatAddressDisplay(partnerAddress)}
               </p>
             </div>
           </div>

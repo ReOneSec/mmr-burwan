@@ -41,14 +41,14 @@ const groomSchema = z.object({
   permanentPoliceStation: z.string().min(2, 'Police Station is required'),
   permanentDistrict: z.string().min(2, 'District is required'),
   permanentState: z.string().min(2, 'State is required'),
-  permanentZipCode: z.string().min(5, 'ZIP code is required'),
+  permanentZipCode: z.string().regex(/^\d{6}$/, 'ZIP code must be exactly 6 digits'),
   permanentCountry: z.string().min(2, 'Country is required'),
   currentVillageStreet: z.string().min(3, 'Village/Street is required'),
   currentPostOffice: z.string().min(2, 'Post Office is required'),
   currentPoliceStation: z.string().min(2, 'Police Station is required'),
   currentDistrict: z.string().min(2, 'District is required'),
   currentState: z.string().min(2, 'State is required'),
-  currentZipCode: z.string().min(5, 'ZIP code is required'),
+  currentZipCode: z.string().regex(/^\d{6}$/, 'ZIP code must be exactly 6 digits'),
   currentCountry: z.string().min(2, 'Country is required'),
   sameAsPermanent: z.boolean().optional(),
   marriageDate: z.string().min(1, 'Marriage date is required'),
@@ -69,14 +69,14 @@ const brideSchema = z.object({
   permanentPoliceStation: z.string().min(2, 'Police Station is required'),
   permanentDistrict: z.string().min(2, 'District is required'),
   permanentState: z.string().min(2, 'State is required'),
-  permanentZipCode: z.string().min(5, 'ZIP code is required'),
+  permanentZipCode: z.string().regex(/^\d{6}$/, 'ZIP code must be exactly 6 digits'),
   permanentCountry: z.string().min(2, 'Country is required'),
   currentVillageStreet: z.string().min(3, 'Village/Street is required'),
   currentPostOffice: z.string().min(2, 'Post Office is required'),
   currentPoliceStation: z.string().min(2, 'Police Station is required'),
   currentDistrict: z.string().min(2, 'District is required'),
   currentState: z.string().min(2, 'State is required'),
-  currentZipCode: z.string().min(5, 'ZIP code is required'),
+  currentZipCode: z.string().regex(/^\d{6}$/, 'ZIP code must be exactly 6 digits'),
   currentCountry: z.string().min(2, 'Country is required'),
   sameAsPermanent: z.boolean().optional(),
 });
@@ -994,7 +994,12 @@ const ApplicationFormContent: React.FC = () => {
                 <div className="grid grid-cols-2 gap-4">
                   <Input
                     label="ZIP Code"
-                    {...groomForm.register('permanentZipCode')}
+                    maxLength={6}
+                    {...groomForm.register('permanentZipCode', {
+                      onChange: (e) => {
+                        e.target.value = e.target.value.replace(/\D/g, '').slice(0, 6);
+                      },
+                    })}
                     disabled={isSubmitted}
                     error={groomForm.formState.errors.permanentZipCode?.message}
                     required
@@ -1062,7 +1067,12 @@ const ApplicationFormContent: React.FC = () => {
                   <div className="grid grid-cols-2 gap-4">
                     <Input
                       label="ZIP Code"
-                      {...groomForm.register('currentZipCode')}
+                      maxLength={6}
+                      {...groomForm.register('currentZipCode', {
+                        onChange: (e) => {
+                          e.target.value = e.target.value.replace(/\D/g, '').slice(0, 6);
+                        },
+                      })}
                       disabled={isSubmitted || groomSameAsPermanent}
                       error={groomForm.formState.errors.currentZipCode?.message}
                       required
@@ -1206,7 +1216,12 @@ const ApplicationFormContent: React.FC = () => {
                 <div className="grid grid-cols-2 gap-4">
                   <Input
                     label="ZIP Code"
-                    {...brideForm.register('permanentZipCode')}
+                    maxLength={6}
+                    {...brideForm.register('permanentZipCode', {
+                      onChange: (e) => {
+                        e.target.value = e.target.value.replace(/\D/g, '').slice(0, 6);
+                      },
+                    })}
                     disabled={isSubmitted}
                     error={brideForm.formState.errors.permanentZipCode?.message}
                     required
@@ -1274,7 +1289,12 @@ const ApplicationFormContent: React.FC = () => {
                   <div className="grid grid-cols-2 gap-4">
                     <Input
                       label="ZIP Code"
-                      {...brideForm.register('currentZipCode')}
+                      maxLength={6}
+                      {...brideForm.register('currentZipCode', {
+                        onChange: (e) => {
+                          e.target.value = e.target.value.replace(/\D/g, '').slice(0, 6);
+                        },
+                      })}
                       disabled={isSubmitted || brideSameAsPermanent}
                       error={brideForm.formState.errors.currentZipCode?.message}
                       required

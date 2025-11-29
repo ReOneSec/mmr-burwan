@@ -68,25 +68,39 @@ const formatAadhaar = (aadhaar: string | undefined): string => {
 };
 
 // Format address matching original format
+// Uses the exact address fields from the application form
 const formatAddress = (address: any): string => {
-  if (!address || (!address.street && !address.city)) return 'N/A';
+  if (!address) return 'N/A';
+  
   const parts = [];
   
-  const village = address.street ? address.street.toUpperCase().replace(/^VILL-?\s*/i, '').trim() : '';
-  if (village) parts.push(`VILL- ${village}`);
+  // Village/Street - use villageStreet field first, fallback to street
+  const village = address.villageStreet || address.street || '';
+  if (village) {
+    // Remove any existing VILL- prefix and add it properly
+    const cleanVillage = village.toUpperCase().replace(/^VILL-?\s*/i, '').trim();
+    parts.push(`VILL- ${cleanVillage}`);
+  }
   
-  if (address.city) parts.push(`P.O- ${address.city.toUpperCase()}`);
+  // Post Office - use postOffice field first, fallback to city
+  const postOffice = address.postOffice || address.city || '';
+  if (postOffice) parts.push(`P.O- ${postOffice.toUpperCase()}`);
   
-  const ps = address.state || address.city || '';
-  if (ps) parts.push(`P.S- ${ps.toUpperCase()}`);
+  // Police Station - use policeStation field
+  const policeStation = address.policeStation || '';
+  if (policeStation) parts.push(`P.S- ${policeStation.toUpperCase()}`);
   
-  const district = address.state || address.city || '';
+  // District - use district field first, fallback to city
+  const district = address.district || address.city || '';
   if (district) parts.push(`DIST- ${district.toUpperCase()}`);
   
+  // State - always use WEST BENGAL as this website operates only in West Bengal
   parts.push('WEST BENGAL');
   
+  // PIN code
   if (address.zipCode) parts.push(`PIN- ${address.zipCode}`);
   
+  // Only show if we have at least village/street info
   return parts.length > 0 ? parts.join(', ') : 'N/A';
 };
 
@@ -113,6 +127,7 @@ interface CertificatePDFProps {
     partnerLastName: string;
     partnerFatherName: string;
   };
+  jointPhotoDataUrl?: string | null;
 }
 
 // Exact colors from the original
@@ -456,7 +471,7 @@ const styles = StyleSheet.create({
   },
 });
 
-export const CertificatePDF: React.FC<CertificatePDFProps> = ({ application, certificateData }) => {
+export const CertificatePDF: React.FC<CertificatePDFProps> = ({ application, certificateData, jointPhotoDataUrl }) => {
   const userDetails = application.userDetails || {};
   const partnerDetails = (application as any).partnerDetails || (application as any).partnerForm || {};
   const userAddress = application.userAddress || (application as any).address || {};
@@ -468,12 +483,6 @@ export const CertificatePDF: React.FC<CertificatePDFProps> = ({ application, cer
   const userPermanentAddr = formatAddress(userAddress);
   const partnerPresentAddr = formatAddress(partnerCurrentAddress.street ? partnerCurrentAddress : partnerAddress);
   const partnerPermanentAddr = formatAddress(partnerAddress);
-
-  // Find joint photograph from documents
-  const jointPhotograph = application.documents?.find(
-    (doc) => doc.type === 'photo' && doc.belongsTo === 'joint'
-  );
-  const jointPhotoUrl = jointPhotograph ? getImageUrl(jointPhotograph.url) : null;
 
   return (
     <Document>
@@ -697,9 +706,9 @@ export const CertificatePDF: React.FC<CertificatePDFProps> = ({ application, cer
           {/* Bottom - Couple Photo and QR */}
           <View style={styles.bottomSection}>
             <View style={styles.couplePhotoBox}>
-              {jointPhotoUrl ? (
+              {jointPhotoDataUrl ? (
                 <Image 
-                  src={jointPhotoUrl} 
+                  src={jointPhotoDataUrl} 
                   style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                   cache={false}
                 />
