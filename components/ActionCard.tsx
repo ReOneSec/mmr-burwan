@@ -96,28 +96,28 @@ const ActionCard: React.FC<ActionCardProps> = ({ icon, title, subtitle, active =
         }}
       />
 
-      <div className="relative h-full flex flex-col justify-between p-6 z-20 transform translate-z-10">
-        <div className="flex justify-between items-start mb-4">
-          <div className={`w-12 h-12 rounded-2xl ${currentConfig.bg} flex items-center justify-center ${currentConfig.icon} shadow-inner transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3`}>
+      <div className="relative h-full flex flex-col justify-between p-4 sm:p-6 z-20 transform translate-z-10">
+        <div className="flex justify-between items-start mb-2 sm:mb-4">
+          <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl ${currentConfig.bg} flex items-center justify-center ${currentConfig.icon} shadow-inner transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3`}>
             {icon}
           </div>
           
           <div className={`
-            w-8 h-8 rounded-full flex items-center justify-center 
+            w-6 h-6 sm:w-8 sm:h-8 rounded-full flex items-center justify-center 
             bg-gray-50 text-gray-400 
             transition-all duration-300 
             group-hover:bg-gray-900 group-hover:text-white group-hover:rotate-45
           `}>
-            {active ? <ArrowUpRight size={18} /> : <ChevronRight size={18} />}
+            {active ? <ArrowUpRight size={14} className="sm:w-[18px] sm:h-[18px]" /> : <ChevronRight size={14} className="sm:w-[18px] sm:h-[18px]" />}
           </div>
         </div>
 
         <div>
-          <h3 className="font-serif text-lg font-semibold text-gray-900 leading-snug mb-1 group-hover:text-gray-800 transition-colors">
+          <h3 className="font-serif text-sm sm:text-lg font-semibold text-gray-900 leading-snug mb-0.5 sm:mb-1 group-hover:text-gray-800 transition-colors">
             {title}
           </h3>
-          <p className="text-xs font-medium text-gray-500 uppercase tracking-wider flex items-center gap-2 group-hover:text-gold-600 transition-colors">
-            {active && <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse shadow-[0_0_8px_rgba(34,197,94,0.6)]"></span>}
+          <p className="text-[10px] sm:text-xs font-medium text-gray-500 uppercase tracking-wider flex items-center gap-1 sm:gap-2 group-hover:text-gold-600 transition-colors">
+            {active && <span className="w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full bg-green-500 animate-pulse shadow-[0_0_8px_rgba(34,197,94,0.6)]"></span>}
             {subtitle}
           </p>
         </div>

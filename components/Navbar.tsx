@@ -18,18 +18,18 @@ const Navbar: React.FC = () => {
   return (
     <header 
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled ? 'bg-white/90 backdrop-blur-md shadow-sm py-3' : 'bg-transparent py-5'
+        isScrolled ? 'bg-white/90 backdrop-blur-md shadow-sm py-2 sm:py-3' : 'bg-transparent py-3 sm:py-5'
       }`}
     >
-      <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between">
         {/* Logo Area */}
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-gold-400 to-gold-600 flex items-center justify-center shadow-md text-white font-serif font-bold text-xl">
+        <div className="flex items-center gap-2 sm:gap-3">
+          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-gold-400 to-gold-600 flex items-center justify-center shadow-md text-white font-serif font-bold text-base sm:text-xl">
             M
           </div>
           <div className="flex flex-col">
-            <span className="font-serif font-bold text-gray-900 leading-none text-lg tracking-tight">MMR Burwan</span>
-            <span className="text-[10px] uppercase tracking-widest text-gold-600 font-medium">Official Portal</span>
+            <span className="font-serif font-bold text-gray-900 leading-none text-sm sm:text-lg tracking-tight">MMR Burwan</span>
+            <span className="text-[8px] sm:text-[10px] uppercase tracking-widest text-gold-600 font-medium">Official Portal</span>
           </div>
         </div>
 
@@ -60,30 +60,41 @@ const Navbar: React.FC = () => {
 
         {/* Mobile Toggle */}
         <button 
-          className="md:hidden text-gray-700"
+          className="md:hidden text-gray-700 p-1"
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
         >
-          {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+          {mobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
         </button>
       </div>
 
       {/* Mobile Menu */}
       {mobileMenuOpen && (
-        <div className="md:hidden absolute top-full left-0 w-full bg-white border-t border-gray-100 p-6 shadow-lg flex flex-col gap-4 animate-fade-in">
-          <Link to="/" onClick={() => setMobileMenuOpen(false)} className="text-base font-medium text-gray-800">Home</Link>
-          <a href="#services" onClick={() => setMobileMenuOpen(false)} className="text-base font-medium text-gray-800">Services</a>
-          <Link to="/verify" onClick={() => setMobileMenuOpen(false)} className="text-base font-medium text-gray-800">Verify</Link>
-          <Link to="/help" onClick={() => setMobileMenuOpen(false)} className="text-base font-medium text-gray-800">Help</Link>
+        <div className="md:hidden absolute top-full left-0 w-full bg-white border-t border-gray-100 p-4 sm:p-6 shadow-lg flex flex-col gap-3 sm:gap-4 animate-fade-in">
+          <Link to="/" onClick={() => setMobileMenuOpen(false)} className="text-sm sm:text-base font-medium text-gray-800 py-1">Home</Link>
+          <a href="#services" onClick={() => setMobileMenuOpen(false)} className="text-sm sm:text-base font-medium text-gray-800 py-1">Services</a>
+          <Link to="/verify" onClick={() => setMobileMenuOpen(false)} className="text-sm sm:text-base font-medium text-gray-800 py-1">Verify</Link>
+          <Link to="/help" onClick={() => setMobileMenuOpen(false)} className="text-sm sm:text-base font-medium text-gray-800 py-1">Help</Link>
           <hr className="border-gray-100"/>
-          <button 
-            onClick={() => {
-              navigate('/auth/register');
-              setMobileMenuOpen(false);
-            }}
-            className="w-full bg-gold-500 text-white py-3 rounded-lg font-medium"
-          >
-            Registration
-          </button>
+          <div className="flex flex-col gap-2">
+            <button 
+              onClick={() => {
+                navigate('/auth/login');
+                setMobileMenuOpen(false);
+              }}
+              className="w-full bg-white border border-gray-200 text-gray-800 py-2.5 sm:py-3 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors"
+            >
+              Log In
+            </button>
+            <button 
+              onClick={() => {
+                navigate('/auth/register');
+                setMobileMenuOpen(false);
+              }}
+              className="w-full bg-gold-500 text-white py-2.5 sm:py-3 rounded-lg text-sm font-medium hover:bg-gold-600 transition-colors"
+            >
+              Registration
+            </button>
+          </div>
         </div>
       )}
     </header>
