@@ -3,12 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNotification } from '../../contexts/NotificationContext';
 import { auditService } from '../../services/audit';
+import { applicationService } from '../../services/application';
 import Card from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
 import Badge from '../../components/ui/Badge';
 import { Html5Qrcode } from 'html5-qrcode';
 import jsQR from 'jsqr';
-import { QrCode, CheckCircle, XCircle, Scan, ArrowLeft, Camera, CameraOff } from 'lucide-react';
+import { QrCode, CheckCircle, XCircle, Scan, ArrowLeft, Camera, CameraOff, Eye } from 'lucide-react';
 
 const ScannerPage: React.FC = () => {
   const navigate = useNavigate();
@@ -238,10 +239,23 @@ const ScannerPage: React.FC = () => {
         // Mark this QR code as processed
         lastScannedQrRef.current = qrData;
 
+        // Try to fetch the application for this user
+        let applicationId: string | null = null;
+        try {
+          const application = await applicationService.getApplication(data.userId);
+          if (application) {
+            applicationId = application.id;
+          }
+        } catch (error) {
+          // Application might not exist, that's okay
+          console.log('No application found for user:', data.userId);
+        }
+
         setScannedData({
           ...data,
           valid: true,
           checkedIn: false,
+          applicationId,
         });
 
         // Record in audit log
@@ -457,28 +471,13 @@ const ScannerPage: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handleCheckIn = async () => {
-    if (!scannedData) return;
-
-    try {
-      await auditService.createLog({
-        actorId: user?.id || 'admin-1',
-        actorName: user?.name || 'Admin User',
-        actorRole: 'admin',
-        action: 'appointment_checked_in',
-        resourceType: 'appointment',
-        resourceId: scannedData.appointmentId,
-        details: { userId: scannedData.userId },
-      });
-
-      setScannedData({ ...scannedData, checkedIn: true });
-      showToast('Check-in successful', 'success');
-      
-      // Reset last scanned QR to allow scanning the same code again after check-in
-      lastScannedQrRef.current = null;
-    } catch (error) {
-      showToast('Failed to record check-in', 'error');
+  const handleViewApplication = () => {
+    if (!scannedData || !scannedData.applicationId) {
+      showToast('No application found for this user', 'error');
+      return;
     }
+
+    navigate(`/admin/applications/${scannedData.applicationId}`);
   };
 
   return (
@@ -612,20 +611,20 @@ const ScannerPage: React.FC = () => {
                       <p className="font-medium text-xs sm:text-sm text-gray-900">{scannedData.time}</p>
                     </div>
                   </div>
-                  {!scannedData.checkedIn ? (
+                  {scannedData.applicationId ? (
                     <Button
                       variant="primary"
-                      onClick={handleCheckIn}
+                      onClick={handleViewApplication}
                       className="w-full !text-xs sm:!text-sm"
                       size="sm"
                     >
-                      <CheckCircle size={14} className="sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-                      Check In
+                      <Eye size={14} className="sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                      View Application
                     </Button>
                   ) : (
-                    <div className="flex items-center gap-1.5 sm:gap-2 p-2.5 sm:p-3 lg:p-4 bg-green-50 rounded-lg sm:rounded-xl">
-                      <CheckCircle size={16} className="sm:w-5 sm:h-5 text-green-600" />
-                      <span className="text-xs sm:text-sm font-medium text-green-800">Checked In</span>
+                    <div className="flex items-center gap-1.5 sm:gap-2 p-2.5 sm:p-3 lg:p-4 bg-gray-50 rounded-lg sm:rounded-xl">
+                      <XCircle size={16} className="sm:w-5 sm:h-5 text-gray-400" />
+                      <span className="text-xs sm:text-sm font-medium text-gray-600">No application submitted</span>
                     </div>
                   )}
                 </>
