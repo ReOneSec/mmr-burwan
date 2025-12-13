@@ -840,12 +840,12 @@ const ApplicationFormContent: React.FC = () => {
   };
 
   // Maximum file size: 500KB
-  const MAX_FILE_SIZE = 500 * 1024; // 500KB in bytes
+  const MAX_FILE_SIZE = 250 * 1024; // 250KB in bytes
 
   const handleFileUpload = (file: File, type: 'aadhaar' | 'tenth_certificate' | 'voter_id' | 'photo', belongsTo: 'user' | 'partner' | 'joint') => {
     // Check file size
     if (file.size > MAX_FILE_SIZE) {
-      showToast(`File size exceeds 500KB limit. Please compress or resize the image before uploading.`, 'error');
+      showToast(`File size exceeds 250KB limit. Please compress or resize the image before uploading.`, 'error');
       return;
     }
 
@@ -874,9 +874,9 @@ const ApplicationFormContent: React.FC = () => {
   const handleCropComplete = (croppedFile: File) => {
     if (!pendingCropFile) return;
 
-    // Check file size again after cropping
+    // Check final cropped size
     if (croppedFile.size > MAX_FILE_SIZE) {
-      showToast(`Cropped file size exceeds 500KB limit. Please try again with a smaller image.`, 'error');
+      showToast('Cropped file size exceeds 250KB. Please try again.', 'error');
       setPendingCropFile(null);
       setCropModalOpen(false);
       return;

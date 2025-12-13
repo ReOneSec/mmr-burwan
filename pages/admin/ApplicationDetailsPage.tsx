@@ -134,10 +134,10 @@ const ApplicationDetailsPage: React.FC = () => {
   const handleReuploadFileSelect = (documentId: string, event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      // Check file size (500KB limit)
-      const MAX_FILE_SIZE = 500 * 1024;
+      // Check file size (250KB limit)
+      const MAX_FILE_SIZE = 250 * 1024;
       if (file.size > MAX_FILE_SIZE) {
-        showToast('File size exceeds 500KB limit. Please compress or resize the file before uploading.', 'error');
+        showToast('File too large. Please compress or resize the file before uploading.', 'error');
         event.target.value = '';
         return;
       }
@@ -161,9 +161,9 @@ const ApplicationDetailsPage: React.FC = () => {
     if (!pendingCropFile) return;
 
     // Check file size again after cropping
-    const MAX_FILE_SIZE = 500 * 1024;
+    const MAX_FILE_SIZE = 250 * 1024;
     if (croppedFile.size > MAX_FILE_SIZE) {
-      showToast('Cropped file size exceeds 500KB limit. Please try again with a smaller image.', 'error');
+      showToast('Cropped file too large. Please try again with a smaller image.', 'error');
       setPendingCropFile(null);
       setCropModalOpen(false);
       return;
