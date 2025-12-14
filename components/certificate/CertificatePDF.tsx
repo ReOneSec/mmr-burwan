@@ -676,7 +676,7 @@ export const CertificatePDF: React.FC<CertificatePDFProps> = ({ application, cer
           {/* Registrar Details */}
           <View style={styles.registrarBox}>
             <Text style={styles.registrarTitle}>Muhammadan Marriage Registrar & Qaazi Details:</Text>
-            
+
             {/* Conditional rendering based on registrar type */}
             {certificateData.registrarQualifications ? (
               // MD Ismail Khan format: Name (left) with License and Sanad No (right) on same line, then Qualifications below
@@ -684,7 +684,7 @@ export const CertificatePDF: React.FC<CertificatePDFProps> = ({ application, cer
                 <View style={[styles.registrarRow, { justifyContent: 'space-between', alignItems: 'flex-start' }]}>
                   <View style={{ flex: 2, paddingRight: 15 }}>
                     <Text style={styles.registrarValue}>
-                      SENIOR MUFTI MAULANA AL-HAJJ <Text style={styles.registrarValueBold}>MD. ISMAIL KHAN</Text>
+                      SENIOR MUFTI MAULANA AL-HAJJ <Text style={styles.registrarValueBold}>MD ISMAIL KHAN</Text>
                     </Text>
                   </View>
                   <View style={{ flex: 1, flexShrink: 0 }}>

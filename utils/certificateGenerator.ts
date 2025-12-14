@@ -223,7 +223,7 @@ export const generateCertificateData = (application: Application) => {
       email: 'mmrburwan@gmail.com',
     },
     md_ismail_khan: {
-      name: 'SENIOR MUFTI MAULANA AL-HAJJ MD. ISMAIL KHAN',
+      name: 'SENIOR MUFTI MAULANA AL-HAJJ MD ISMAIL KHAN',
       qualifications: 'M.M.M.F. (CAL), M.A. ALIGARH MUSLIM UNIVERSITY',
       license: '2203, 2204',
       office: 'VILL & PO- GRAMSALIKA, PS- BURWAN, DIST- MURSHIDABAD, WEST BENGAL, PIN- 742132',
