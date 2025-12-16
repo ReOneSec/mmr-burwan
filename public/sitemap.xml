@@ -7,32 +7,37 @@
   <!-- Homepage -->
   <url>
     <loc>https://mmrburwan.com/</loc>
-    <lastmod>2024-12-10</lastmod>
-    <changefreq>weekly</changefreq>
+    <lastmod>2025-12-17</lastmod>
+    <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
   
-  <!-- Verify Certificate Page -->
+  <!-- Public Pages -->
   <url>
     <loc>https://mmrburwan.com/verify</loc>
-    <lastmod>2024-12-10</lastmod>
+    <lastmod>2025-12-17</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  
+  <url>
+    <loc>https://mmrburwan.com/contact</loc>
+    <lastmod>2025-12-17</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   
-  <!-- Help Center -->
   <url>
     <loc>https://mmrburwan.com/help</loc>
-    <lastmod>2024-12-10</lastmod>
+    <lastmod>2025-12-17</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   
-  <!-- Privacy Policy -->
   <url>
     <loc>https://mmrburwan.com/privacy</loc>
-    <lastmod>2024-12-10</lastmod>
-    <changefreq>yearly</changefreq>
+    <lastmod>2025-12-17</lastmod>
+    <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   

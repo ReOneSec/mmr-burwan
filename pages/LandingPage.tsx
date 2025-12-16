@@ -4,6 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
 import SEO from '../components/SEO';
 import StructuredData from '../components/StructuredData';
+import FAQStructuredData from '../components/FAQStructuredData';
 import Hero from '../components/Hero';
 import Features from '../components/Features';
 import HowItWorks from '../components/HowItWorks';
@@ -50,12 +51,13 @@ const LandingPage: React.FC = () => {
   return (
     <>
       <SEO
-        title="MMR Burwan | Digital Marriage Registration System"
-        description="Apply for marriage registration online from anywhere, anytime. Secure, fast, and paperless digital marriage registration system for Burwan. Official government service with 24/7 support."
-        keywords="marriage registration, nikah registration, burwan, digital marriage certificate, online marriage registration, government service, marriage certificate online"
+        title="MMR Burwan | Muslim Marriage Registration | Nikah Registration West Bengal"
+        description="Official Muslim marriage registration & nikah registration online for West Bengal, Murshidabad. Government approved qazi service. Apply nikah certificate, download marriage certificate. Serving Burwan, Berhampore, Farakka & 21 blocks. Same day registration available."
+        keywords="MMR registration, MMR Burwan, Muslim marriage registration, nikah registration, Muslim marriage certificate, nikah certificate West Bengal, nikah registration Murshidabad, qazi registration, online nikah registration, digital marriage certificate, government qazi, Islamic marriage registration, nikah nama, marriage registration near me, MMR Berhampore, MMR Farakka, Muslim marriage registration online, nikah registration Burwan, Muslim marriage registration West Bengal, authorized qazi, government approved marriage registration"
         url="https://mmrburwan.com"
       />
       <StructuredData type="GovernmentService" />
+      <FAQStructuredData />
       <Hero />
       <Features />
       <HowItWorks />

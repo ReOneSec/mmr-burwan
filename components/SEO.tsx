@@ -11,9 +11,9 @@ interface SEOProps {
 }
 
 const SEO: React.FC<SEOProps> = ({
-  title = 'MMR Burwan | Digital Marriage Registration System',
-  description = 'Apply for marriage registration online from anywhere, anytime. Secure, fast, and paperless digital marriage registration system for Burwan. Official government service with 24/7 support.',
-  keywords = 'marriage registration, nikah registration, burwan, digital marriage certificate, online marriage registration, government service',
+  title = 'MMR Burwan | Muslim Marriage Registration | Nikah Registration Murshidabad',
+  description = 'Official Muslim marriage registration & nikah registration online for West Bengal, Murshidabad. Government approved qazi service. Apply nikah certificate online, download marriage certificate. Authorized registrar for Burwan, Berhampore, Farakka & 21 blocks.',
+  keywords = 'MMR registration, Muslim marriage registration, nikah registration, Muslim marriage certificate, nikah certificate, qazi registration, MMR Burwan, nikah registration West Bengal, Muslim marriage registration Murshidabad, online nikah registration, digital marriage certificate, government qazi, Islamic marriage registration, nikah nama, marriage registration near me, MMR Berhampore, MMR Farakka, Muslim marriage registration online',
   image = 'https://mmrburwan.com/og-image.jpg',
   url = 'https://mmrburwan.com',
   type = 'website',
@@ -45,7 +45,7 @@ const SEO: React.FC<SEOProps> = ({
     updateMetaTag('meta[name="title"]', 'content', fullTitle);
     updateMetaTag('meta[name="description"]', 'content', description);
     updateMetaTag('meta[name="keywords"]', 'content', keywords);
-    
+
     if (noindex) {
       updateMetaTag('meta[name="robots"]', 'content', 'noindex, nofollow');
     }
