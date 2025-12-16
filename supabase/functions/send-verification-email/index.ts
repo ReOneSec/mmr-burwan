@@ -164,7 +164,7 @@ serve(async (req) => {
             <tr>
               <td style="background-color: #f8fafc; padding: 30px; border-top: 1px solid #e2e8f0; text-align: center;">
                 <p style="color: #64748b; font-size: 12px; margin: 0 0 10px 0;">
-                  Need assistance? Contact support at <strong style="color: #0f172a;">1800-123-4567</strong>
+                  Need assistance? Contact support at <strong style="color: #0f172a;">9732688698, 9647724532</strong>
                 </p>
                 <p style="color: #94a3b8; font-size: 11px; line-height: 1.5; margin: 0;">
                   &copy; 2025 MMR Burwan Official Portal.<br>

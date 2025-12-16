@@ -339,7 +339,7 @@ const VerifyPage: React.FC = () => {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => window.location.href = 'mailto:support@mmr.gov.in?subject=Support Request'}
+            onClick={() => window.location.href = 'mailto:mmrburwan@gmail.com?subject=Support Request'}
           >
             <Mail size={14} className="mr-1.5 sm:w-4 sm:h-4" />
             Email Support
@@ -347,7 +347,7 @@ const VerifyPage: React.FC = () => {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => window.location.href = 'tel:18001234567'}
+            onClick={() => window.location.href = 'tel:8101673279'}
           >
             <Phone size={14} className="mr-1.5 sm:w-4 sm:h-4" />
             Call Us
