@@ -323,17 +323,7 @@ const ClientsPage: React.FC = () => {
                   </div>
 
                   {/* Status Info Row */}
-                  <div className="grid grid-cols-3 gap-2">
-                    <div className="text-center p-2 bg-gray-50 rounded-lg">
-                      <p className="text-[9px] text-gray-500 uppercase tracking-wide mb-1">Verified</p>
-                      {client.application?.verified !== undefined ? (
-                        <Badge variant={client.application.verified ? 'success' : 'default'} className="!text-[9px] !px-1.5">
-                          {client.application.verified ? 'Yes' : 'No'}
-                        </Badge>
-                      ) : (
-                        <span className="text-[10px] text-gray-400">-</span>
-                      )}
-                    </div>
+                  <div className="grid grid-cols-2 gap-2">
                     <div className="text-center p-2 bg-gray-50 rounded-lg">
                       <p className="text-[9px] text-gray-500 uppercase tracking-wide mb-1">Progress</p>
                       {client.application ? (
@@ -358,6 +348,22 @@ const ClientsPage: React.FC = () => {
                           : '-'
                         }
                       </p>
+                    </div>
+                  </div>
+
+                  {/* Status with Verification */}
+                  <div className="bg-gray-50 rounded-lg p-2">
+                    <p className="text-[9px] text-gray-500 uppercase tracking-wide mb-1.5">Status</p>
+                    <div className="flex items-center justify-center gap-2">
+                      {client.application
+                        ? getStatusBadge(client.application.status)
+                        : <Badge variant="default" className="!text-[10px]">No App</Badge>
+                      }
+                      {client.application?.verified !== undefined && (
+                        <Badge variant={client.application.verified ? 'success' : 'default'} className="!text-[9px] !px-1.5">
+                          {client.application.verified ? '✓ Verified' : 'Unverified'}
+                        </Badge>
+                      )}
                     </div>
                   </div>
 
@@ -488,10 +494,9 @@ const ClientsPage: React.FC = () => {
                 <th className="text-left py-2 sm:py-3 px-2 sm:px-4 text-[10px] sm:text-xs lg:text-sm font-semibold text-gray-700">Groom & Bride</th>
                 <th className="text-left py-2 sm:py-3 px-2 sm:px-4 text-[10px] sm:text-xs lg:text-sm font-semibold text-gray-700">Phone & Email</th>
                 <th className="text-left py-2 sm:py-3 px-2 sm:px-4 text-[10px] sm:text-xs lg:text-sm font-semibold text-gray-700">Status</th>
-                <th className="text-left py-2 sm:py-3 px-2 sm:px-4 text-[10px] sm:text-xs lg:text-sm font-semibold text-gray-700">Verified</th>
+                <th className="text-left py-2 sm:py-3 px-2 sm:px-4 text-[10px] sm:text-xs lg:text-sm font-semibold text-gray-700">Actions</th>
                 <th className="text-left py-2 sm:py-3 px-2 sm:px-4 text-[10px] sm:text-xs lg:text-sm font-semibold text-gray-700">Progress</th>
                 <th className="text-left py-2 sm:py-3 px-2 sm:px-4 text-[10px] sm:text-xs lg:text-sm font-semibold text-gray-700">Last Updated</th>
-                <th className="text-left py-2 sm:py-3 px-2 sm:px-4 text-[10px] sm:text-xs lg:text-sm font-semibold text-gray-700">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -533,40 +538,17 @@ const ClientsPage: React.FC = () => {
                       </div>
                     </td>
                     <td className="py-2 sm:py-3 lg:py-4 px-2 sm:px-4">
-                      {client.application
-                        ? getStatusBadge(client.application.status)
-                        : <Badge variant="default" className="!text-[10px] sm:!text-xs">No Application</Badge>
-                      }
-                    </td>
-                    <td className="py-2 sm:py-3 lg:py-4 px-2 sm:px-4">
-                      {client.application?.verified !== undefined ? (
-                        <Badge variant={client.application.verified ? 'success' : 'default'} className="!text-[10px] sm:!text-xs">
-                          {client.application.verified ? 'Verified' : 'Unverified'}
-                        </Badge>
-                      ) : (
-                        <span className="text-[10px] sm:text-xs text-gray-400">-</span>
-                      )}
-                    </td>
-                    <td className="py-2 sm:py-3 lg:py-4 px-2 sm:px-4">
-                      {client.application ? (
-                        <div className="flex items-center gap-1.5 sm:gap-2">
-                          <div className="w-16 sm:w-20 lg:w-24 bg-gray-200 rounded-full h-1.5 sm:h-2">
-                            <div
-                              className="bg-gold-500 h-1.5 sm:h-2 rounded-full"
-                              style={{ width: `${client.application.progress}%` }}
-                            />
-                          </div>
-                          <span className="text-[10px] sm:text-xs text-gray-500">{client.application.progress}%</span>
-                        </div>
-                      ) : (
-                        <span className="text-[10px] sm:text-xs text-gray-400">-</span>
-                      )}
-                    </td>
-                    <td className="py-2 sm:py-3 lg:py-4 px-2 sm:px-4 text-[10px] sm:text-xs lg:text-sm text-gray-600">
-                      {client.application?.lastUpdated
-                        ? safeFormatDateObject(new Date(client.application.lastUpdated), 'MMM d, yyyy')
-                        : '-'
-                      }
+                      <div className="flex flex-col gap-1.5">
+                        {client.application
+                          ? getStatusBadge(client.application.status)
+                          : <Badge variant="default" className="!text-[10px] sm:!text-xs">No Application</Badge>
+                        }
+                        {client.application?.verified !== undefined && (
+                          <Badge variant={client.application.verified ? 'success' : 'default'} className="!text-[10px] sm:!text-xs">
+                            {client.application.verified ? '✓ Verified' : 'Unverified'}
+                          </Badge>
+                        )}
+                      </div>
                     </td>
                     <td className="py-2 sm:py-3 lg:py-4 px-2 sm:px-4">
                       <div className="flex flex-wrap gap-1 sm:gap-2">
@@ -683,6 +665,27 @@ const ClientsPage: React.FC = () => {
                           </>
                         )}
                       </div>
+                    </td>
+                    <td className="py-2 sm:py-3 lg:py-4 px-2 sm:px-4">
+                      {client.application ? (
+                        <div className="flex items-center gap-1.5 sm:gap-2">
+                          <div className="w-16 sm:w-20 lg:w-24 bg-gray-200 rounded-full h-1.5 sm:h-2">
+                            <div
+                              className="bg-gold-500 h-1.5 sm:h-2 rounded-full"
+                              style={{ width: `${client.application.progress}%` }}
+                            />
+                          </div>
+                          <span className="text-[10px] sm:text-xs text-gray-500">{client.application.progress}%</span>
+                        </div>
+                      ) : (
+                        <span className="text-[10px] sm:text-xs text-gray-400">-</span>
+                      )}
+                    </td>
+                    <td className="py-2 sm:py-3 lg:py-4 px-2 sm:px-4 text-[10px] sm:text-xs lg:text-sm text-gray-600">
+                      {client.application?.lastUpdated
+                        ? safeFormatDateObject(new Date(client.application.lastUpdated), 'MMM d, yyyy')
+                        : '-'
+                      }
                     </td>
                   </tr>
                 );
