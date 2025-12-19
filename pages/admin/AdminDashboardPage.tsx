@@ -196,11 +196,7 @@ const AdminDashboardPage: React.FC = () => {
 
           {/* View Applications */}
           <button
-            onClick={() => {
-              setVerifiedFilter('all');
-              setSearchTerm('');
-              document.querySelector('.overflow-x-auto')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }}
+            onClick={() => navigate('/admin/clients')}
             className="group p-4 sm:p-5 lg:p-6 bg-white rounded-xl sm:rounded-2xl border border-gray-200 border-l-2 border-l-gray-900 hover:shadow-md transition-all duration-200 hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-gold-500 focus:ring-offset-2"
           >
             <div className="flex flex-col items-center text-center gap-2 sm:gap-3">
@@ -239,7 +235,7 @@ const AdminDashboardPage: React.FC = () => {
 
           {/* Scan QR Code */}
           <button
-            onClick={() => navigate('/admin/scan-qr')}
+            onClick={() => navigate('/admin/scanner')}
             className="group p-4 sm:p-5 lg:p-6 bg-white rounded-xl sm:rounded-2xl border border-gray-200 border-l-2 border-l-gray-900 hover:shadow-md transition-all duration-200 hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-rose-500 focus:ring-offset-2"
           >
             <div className="flex flex-col items-center text-center gap-2 sm:gap-3">
