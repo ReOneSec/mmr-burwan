@@ -1,25 +1,30 @@
-# robots.txt for MMR Burwan
-# https://mmrburwan.com/robots.txt
+# Robots.txt for MMRBURWAN.com
+# Muslim Marriage Registration & Nikah Registration Service
 
 User-agent: *
 Allow: /
-Disallow: /admin/
-Disallow: /auth/
-Disallow: /dashboard/
-Disallow: /application/
-Disallow: /api/
-Disallow: /_next/
-Disallow: /static/
-
-# Allow important public pages
-Allow: /
 Allow: /verify
+Allow: /contact
 Allow: /help
 Allow: /privacy
+Allow: /auth/login
+Allow: /auth/register
+
+# Disallow private/admin areas
+Disallow: /admin/
+Disallow: /dashboard
+Disallow: /application
+Disallow: /documents
+Disallow: /appointments
+Disallow: /chat
+Disallow: /settings
+Disallow: /pass
+Disallow: /onboarding
+Disallow: /help-center
+
+# Disallow API endpoints
+Disallow: /api/
+Disallow: /*.json$
 
 # Sitemap location
 Sitemap: https://mmrburwan.com/sitemap.xml
-
-# Crawl-delay (optional, adjust as needed)
-Crawl-delay: 1
-

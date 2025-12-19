@@ -97,17 +97,15 @@ const HelpCenterPage: React.FC = () => {
                   </div>
                   <ChevronDown
                     size={16}
-                    className={`flex-shrink-0 text-gold-600 transition-transform duration-300 sm:w-5 sm:h-5 ${
-                      isOpen ? 'transform rotate-180' : ''
-                    }`}
+                    className={`flex-shrink-0 text-gold-600 transition-transform duration-300 sm:w-5 sm:h-5 ${isOpen ? 'transform rotate-180' : ''
+                      }`}
                   />
                 </button>
 
                 <div
                   id={`answer-${index}`}
-                  className={`overflow-hidden transition-all duration-300 ease-in-out ${
-                    isOpen ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'
-                  }`}
+                  className={`overflow-hidden transition-all duration-300 ease-in-out ${isOpen ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'
+                    }`}
                 >
                   <div className="px-3 sm:px-5 pb-3 sm:pb-4 pl-8 sm:pl-12">
                     <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">
@@ -129,7 +127,7 @@ const HelpCenterPage: React.FC = () => {
               <MessageSquare size={14} className="mr-1.5 sm:w-4 sm:h-4" />
               Start Chat
             </Button>
-            <Button 
+            <Button
               variant="outline"
               size="sm"
               onClick={() => window.location.href = 'mailto:support@mmr.gov.in?subject=Support Request'}
@@ -137,10 +135,10 @@ const HelpCenterPage: React.FC = () => {
               <Mail size={14} className="mr-1.5 sm:w-4 sm:h-4" />
               Email Support
             </Button>
-            <Button 
+            <Button
               variant="outline"
               size="sm"
-              onClick={() => window.location.href = 'tel:18001234567'}
+              onClick={() => window.location.href = 'tel:8101673279'}
             >
               <Phone size={14} className="mr-1.5 sm:w-4 sm:h-4" />
               Call Us

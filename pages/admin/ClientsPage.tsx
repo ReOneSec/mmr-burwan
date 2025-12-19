@@ -47,20 +47,20 @@ const ClientsPage: React.FC = () => {
       try {
         // Get ALL applications (same as dashboard)
         const applications = await adminService.getAllApplications();
-        
+
         // Get unique user IDs from all applications
         const userIds = [...new Set(applications.map(app => app.userId))];
-        
+
         // Fetch user emails in batch
         const emailMap = await adminService.getUserEmails(userIds);
-        
+
         // Create client entries for EACH application (not grouped by user)
         const clientsData: ClientWithApplication[] = applications.map((application) => ({
           userId: application.userId,
           email: emailMap[application.userId] || 'N/A',
           application,
         }));
-        
+
         setClients(clientsData);
         setFilteredClients(clientsData);
 
@@ -89,7 +89,7 @@ const ClientsPage: React.FC = () => {
 
   const handleVerify = async (certificateNumber: string, registrationDate: string, registrarName: string) => {
     if (!user) return;
-    
+
     try {
       await adminService.verifyApplication(
         verifyModalState.applicationId,
@@ -100,7 +100,7 @@ const ClientsPage: React.FC = () => {
         registrarName
       );
       showToast('Application verified successfully', 'success');
-      
+
       // Reload clients - show ALL applications
       const applications = await adminService.getAllApplications();
       const userIds = [...new Set(applications.map(app => app.userId))];
@@ -126,7 +126,7 @@ const ClientsPage: React.FC = () => {
           })
       );
       setCertificatesMap(certMap);
-      
+
       setVerifyModalState({ isOpen: false, applicationId: '' });
     } catch (error: any) {
       showToast(error.message || 'Failed to verify application', 'error');
@@ -143,23 +143,23 @@ const ClientsPage: React.FC = () => {
         // Groom name from userDetails
         const groomFirstName = client.application?.userDetails?.firstName?.trim() || '';
         const groomLastName = client.application?.userDetails?.lastName?.trim() || '';
-        const groomName = groomFirstName || groomLastName 
+        const groomName = groomFirstName || groomLastName
           ? `${groomFirstName} ${groomLastName}`.trim().toLowerCase()
           : '';
-        
+
         // Bride name from partnerForm
         const brideFirstName = client.application?.partnerForm?.firstName?.trim() || '';
         const brideLastName = client.application?.partnerForm?.lastName?.trim() || '';
         const brideName = brideFirstName || brideLastName
           ? `${brideFirstName} ${brideLastName}`.trim().toLowerCase()
           : '';
-        
+
         // Groom email (user's email)
         const groomEmail = (client.email || '').trim().toLowerCase();
-        
+
         // Bride email (check if it exists in partnerForm - for future use)
         const brideEmail = ((client.application?.partnerForm as any)?.email || '').trim().toLowerCase();
-        
+
         // Only check fields that have actual values
         return (
           (groomName && groomName.includes(searchLower)) ||
@@ -176,7 +176,7 @@ const ClientsPage: React.FC = () => {
         filtered = filtered.filter((client) => client.application?.verified === true);
       } else if (verifiedFilter === 'unverified') {
         // Show only submitted applications that are not verified (exclude draft)
-        filtered = filtered.filter((client) => 
+        filtered = filtered.filter((client) =>
           client.application &&
           (client.application.status === 'submitted' || client.application.status === 'under_review') &&
           (client.application.verified === false || client.application.verified === undefined)
@@ -195,9 +195,9 @@ const ClientsPage: React.FC = () => {
       submitted: 'info',
       under_review: 'warning',
       rejected: 'error',
-      draft: 'default',
+      draft: 'warning',
     };
-    return <Badge variant={variants[status] || 'default'}>{status}</Badge>;
+    return <Badge variant={variants[status] || 'info'}>{status}</Badge>;
   };
 
   if (isLoading) {
@@ -253,15 +253,16 @@ const ClientsPage: React.FC = () => {
         {/* Mobile Card View */}
         <div className="block sm:hidden space-y-3">
           {filteredClients.map((client) => {
-            const groomName = client.application?.userDetails 
+            const groomName = client.application?.userDetails
               ? `${client.application.userDetails.firstName}${client.application.userDetails.lastName ? ' ' + client.application.userDetails.lastName : ''}`
               : '-';
-            const brideName = client.application?.partnerForm 
+            const brideName = client.application?.partnerForm
               ? `${client.application.partnerForm.firstName}${client.application.partnerForm.lastName ? ' ' + client.application.partnerForm.lastName : ''}`
               : '-';
             const groomPhone = client.application?.userDetails?.mobileNumber || '-';
             const bridePhone = client.application?.partnerForm?.mobileNumber || '-';
-            
+            const userEmail = client.email || '-';
+
             return (
               <Card key={client.application?.id || client.userId} className="p-4 border border-gray-100 shadow-sm hover:shadow-md transition-shadow duration-200">
                 <div className="space-y-3">
@@ -275,7 +276,7 @@ const ClientsPage: React.FC = () => {
                         <p className="text-[10px] font-medium text-gold-600 uppercase tracking-wide">Couple</p>
                       </div>
                     </div>
-                    {client.application 
+                    {client.application
                       ? getStatusBadge(client.application.status)
                       : <Badge variant="default" className="!text-[10px]">No App</Badge>
                     }
@@ -303,30 +304,26 @@ const ClientsPage: React.FC = () => {
                     </div>
                   </div>
 
-                  {/* Phone Numbers */}
-                  <div className="grid grid-cols-2 gap-2">
-                    <div className="bg-blue-50/50 rounded-lg p-2">
-                      <p className="text-[9px] text-gray-500 uppercase tracking-wide mb-0.5">Groom Phone</p>
-                      <p className="text-xs font-medium text-gray-800">{groomPhone}</p>
+                  {/* Phone & Email */}
+                  <div className="space-y-2">
+                    <div className="grid grid-cols-2 gap-2">
+                      <div className="bg-blue-50/50 rounded-lg p-2">
+                        <p className="text-[9px] text-gray-500 uppercase tracking-wide mb-0.5">Groom Phone</p>
+                        <p className="text-xs font-medium text-gray-800">{groomPhone}</p>
+                      </div>
+                      <div className="bg-pink-50/50 rounded-lg p-2">
+                        <p className="text-[9px] text-gray-500 uppercase tracking-wide mb-0.5">Bride Phone</p>
+                        <p className="text-xs font-medium text-gray-800">{bridePhone}</p>
+                      </div>
                     </div>
-                    <div className="bg-pink-50/50 rounded-lg p-2">
-                      <p className="text-[9px] text-gray-500 uppercase tracking-wide mb-0.5">Bride Phone</p>
-                      <p className="text-xs font-medium text-gray-800">{bridePhone}</p>
+                    <div className="bg-gray-50/50 rounded-lg p-2">
+                      <p className="text-[9px] text-gray-500 uppercase tracking-wide mb-0.5">Email</p>
+                      <p className="text-xs font-medium text-gray-800 truncate">{userEmail}</p>
                     </div>
                   </div>
 
                   {/* Status Info Row */}
-                  <div className="grid grid-cols-3 gap-2">
-                    <div className="text-center p-2 bg-gray-50 rounded-lg">
-                      <p className="text-[9px] text-gray-500 uppercase tracking-wide mb-1">Verified</p>
-                      {client.application?.verified !== undefined ? (
-                        <Badge variant={client.application.verified ? 'success' : 'default'} className="!text-[9px] !px-1.5">
-                          {client.application.verified ? 'Yes' : 'No'}
-                        </Badge>
-                      ) : (
-                        <span className="text-[10px] text-gray-400">-</span>
-                      )}
-                    </div>
+                  <div className="grid grid-cols-2 gap-2">
                     <div className="text-center p-2 bg-gray-50 rounded-lg">
                       <p className="text-[9px] text-gray-500 uppercase tracking-wide mb-1">Progress</p>
                       {client.application ? (
@@ -346,11 +343,27 @@ const ClientsPage: React.FC = () => {
                     <div className="text-center p-2 bg-gray-50 rounded-lg">
                       <p className="text-[9px] text-gray-500 uppercase tracking-wide mb-1">Updated</p>
                       <p className="text-[10px] font-medium text-gray-700">
-                        {client.application?.lastUpdated 
+                        {client.application?.lastUpdated
                           ? safeFormatDateObject(new Date(client.application.lastUpdated), 'MMM d')
                           : '-'
                         }
                       </p>
+                    </div>
+                  </div>
+
+                  {/* Status with Verification */}
+                  <div className="bg-gray-50 rounded-lg p-2">
+                    <p className="text-[9px] text-gray-500 uppercase tracking-wide mb-1.5">Status</p>
+                    <div className="flex items-center justify-center gap-2">
+                      {client.application
+                        ? getStatusBadge(client.application.status)
+                        : <Badge variant="default" className="!text-[10px]">No App</Badge>
+                      }
+                      {client.application?.verified !== undefined && (
+                        <Badge variant={client.application.verified ? 'success' : 'default'} className="!text-[9px] !px-1.5">
+                          {client.application.verified ? '✓ Verified' : 'Unverified'}
+                        </Badge>
+                      )}
                     </div>
                   </div>
 
@@ -479,25 +492,25 @@ const ClientsPage: React.FC = () => {
             <thead>
               <tr className="border-b border-gray-200">
                 <th className="text-left py-2 sm:py-3 px-2 sm:px-4 text-[10px] sm:text-xs lg:text-sm font-semibold text-gray-700">Groom & Bride</th>
-                <th className="text-left py-2 sm:py-3 px-2 sm:px-4 text-[10px] sm:text-xs lg:text-sm font-semibold text-gray-700">Phone Numbers</th>
+                <th className="text-left py-2 sm:py-3 px-2 sm:px-4 text-[10px] sm:text-xs lg:text-sm font-semibold text-gray-700">Phone & Email</th>
                 <th className="text-left py-2 sm:py-3 px-2 sm:px-4 text-[10px] sm:text-xs lg:text-sm font-semibold text-gray-700">Status</th>
-                <th className="text-left py-2 sm:py-3 px-2 sm:px-4 text-[10px] sm:text-xs lg:text-sm font-semibold text-gray-700">Verified</th>
+                <th className="text-left py-2 sm:py-3 px-2 sm:px-4 text-[10px] sm:text-xs lg:text-sm font-semibold text-gray-700">Actions</th>
                 <th className="text-left py-2 sm:py-3 px-2 sm:px-4 text-[10px] sm:text-xs lg:text-sm font-semibold text-gray-700">Progress</th>
                 <th className="text-left py-2 sm:py-3 px-2 sm:px-4 text-[10px] sm:text-xs lg:text-sm font-semibold text-gray-700">Last Updated</th>
-                <th className="text-left py-2 sm:py-3 px-2 sm:px-4 text-[10px] sm:text-xs lg:text-sm font-semibold text-gray-700">Actions</th>
               </tr>
             </thead>
             <tbody>
               {filteredClients.map((client) => {
-                const groomName = client.application?.userDetails 
+                const groomName = client.application?.userDetails
                   ? `${client.application.userDetails.firstName}${client.application.userDetails.lastName ? ' ' + client.application.userDetails.lastName : ''}`
                   : '-';
-                const brideName = client.application?.partnerForm 
+                const brideName = client.application?.partnerForm
                   ? `${client.application.partnerForm.firstName}${client.application.partnerForm.lastName ? ' ' + client.application.partnerForm.lastName : ''}`
                   : '-';
                 const groomPhone = client.application?.userDetails?.mobileNumber || '-';
                 const bridePhone = client.application?.partnerForm?.mobileNumber || '-';
-                
+                const userEmail = client.email || '-';
+
                 return (
                   <tr key={client.application?.id || client.userId} className="border-b border-gray-100 hover:bg-gray-50">
                     <td className="py-2 sm:py-3 lg:py-4 px-2 sm:px-4">
@@ -512,46 +525,30 @@ const ClientsPage: React.FC = () => {
                       </div>
                     </td>
                     <td className="py-2 sm:py-3 lg:py-4 px-2 sm:px-4">
-                      <div className="flex flex-col text-[10px] sm:text-xs lg:text-sm text-gray-600">
-                        <span className="truncate">🤵 {groomPhone}</span>
-                        <span className="truncate">👰 {bridePhone}</span>
+                      <div className="flex flex-col text-[10px] sm:text-xs lg:text-sm text-gray-600 gap-2">
+                        <div>
+                          <span className="font-medium truncate">🤵 {groomPhone}</span>
+                        </div>
+                        <div>
+                          <span className="font-medium truncate">👰 {bridePhone}</span>
+                        </div>
+                        <div>
+                          <span className="truncate text-[9px] sm:text-[10px] lg:text-xs text-gray-500">📧 {userEmail}</span>
+                        </div>
                       </div>
                     </td>
                     <td className="py-2 sm:py-3 lg:py-4 px-2 sm:px-4">
-                      {client.application 
-                        ? getStatusBadge(client.application.status)
-                        : <Badge variant="default" className="!text-[10px] sm:!text-xs">No Application</Badge>
-                      }
-                    </td>
-                    <td className="py-2 sm:py-3 lg:py-4 px-2 sm:px-4">
-                      {client.application?.verified !== undefined ? (
-                        <Badge variant={client.application.verified ? 'success' : 'default'} className="!text-[10px] sm:!text-xs">
-                          {client.application.verified ? 'Verified' : 'Unverified'}
-                        </Badge>
-                      ) : (
-                        <span className="text-[10px] sm:text-xs text-gray-400">-</span>
-                      )}
-                    </td>
-                    <td className="py-2 sm:py-3 lg:py-4 px-2 sm:px-4">
-                      {client.application ? (
-                        <div className="flex items-center gap-1.5 sm:gap-2">
-                          <div className="w-16 sm:w-20 lg:w-24 bg-gray-200 rounded-full h-1.5 sm:h-2">
-                            <div
-                              className="bg-gold-500 h-1.5 sm:h-2 rounded-full"
-                              style={{ width: `${client.application.progress}%` }}
-                            />
-                          </div>
-                          <span className="text-[10px] sm:text-xs text-gray-500">{client.application.progress}%</span>
-                        </div>
-                      ) : (
-                        <span className="text-[10px] sm:text-xs text-gray-400">-</span>
-                      )}
-                    </td>
-                    <td className="py-2 sm:py-3 lg:py-4 px-2 sm:px-4 text-[10px] sm:text-xs lg:text-sm text-gray-600">
-                      {client.application?.lastUpdated 
-                        ? safeFormatDateObject(new Date(client.application.lastUpdated), 'MMM d, yyyy')
-                        : '-'
-                      }
+                      <div className="flex flex-col gap-1.5">
+                        {client.application
+                          ? getStatusBadge(client.application.status)
+                          : <Badge variant="default" className="!text-[10px] sm:!text-xs">No Application</Badge>
+                        }
+                        {client.application?.verified !== undefined && (
+                          <Badge variant={client.application.verified ? 'success' : 'default'} className="!text-[10px] sm:!text-xs">
+                            {client.application.verified ? '✓ Verified' : 'Unverified'}
+                          </Badge>
+                        )}
+                      </div>
                     </td>
                     <td className="py-2 sm:py-3 lg:py-4 px-2 sm:px-4">
                       <div className="flex flex-wrap gap-1 sm:gap-2">
@@ -668,6 +665,27 @@ const ClientsPage: React.FC = () => {
                           </>
                         )}
                       </div>
+                    </td>
+                    <td className="py-2 sm:py-3 lg:py-4 px-2 sm:px-4">
+                      {client.application ? (
+                        <div className="flex items-center gap-1.5 sm:gap-2">
+                          <div className="w-16 sm:w-20 lg:w-24 bg-gray-200 rounded-full h-1.5 sm:h-2">
+                            <div
+                              className="bg-gold-500 h-1.5 sm:h-2 rounded-full"
+                              style={{ width: `${client.application.progress}%` }}
+                            />
+                          </div>
+                          <span className="text-[10px] sm:text-xs text-gray-500">{client.application.progress}%</span>
+                        </div>
+                      ) : (
+                        <span className="text-[10px] sm:text-xs text-gray-400">-</span>
+                      )}
+                    </td>
+                    <td className="py-2 sm:py-3 lg:py-4 px-2 sm:px-4 text-[10px] sm:text-xs lg:text-sm text-gray-600">
+                      {client.application?.lastUpdated
+                        ? safeFormatDateObject(new Date(client.application.lastUpdated), 'MMM d, yyyy')
+                        : '-'
+                      }
                     </td>
                   </tr>
                 );
