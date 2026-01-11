@@ -32,7 +32,7 @@ serve(async (req) => {
         JSON.stringify({ error: "Method not allowed" }),
         {
           status: 405,
-          headers: { 
+          headers: {
             "Content-Type": "application/json",
             "Access-Control-Allow-Origin": "*",
             "Access-Control-Allow-Methods": "POST, OPTIONS",
@@ -52,7 +52,7 @@ serve(async (req) => {
         JSON.stringify({ error: "Invalid request body" }),
         {
           status: 400,
-          headers: { 
+          headers: {
             "Content-Type": "application/json",
             "Access-Control-Allow-Origin": "*",
             "Access-Control-Allow-Methods": "POST, OPTIONS",
@@ -67,13 +67,13 @@ serve(async (req) => {
     // Validate required fields
     if (!email || !password || !adminId || !adminName) {
       return new Response(
-        JSON.stringify({ 
+        JSON.stringify({
           error: "Missing required fields: email, password, adminId, adminName",
           received: { email: !!email, password: !!password, adminId: !!adminId, adminName: !!adminName }
         }),
         {
           status: 400,
-          headers: { 
+          headers: {
             "Content-Type": "application/json",
             "Access-Control-Allow-Origin": "*",
             "Access-Control-Allow-Methods": "POST, OPTIONS",
@@ -89,7 +89,7 @@ serve(async (req) => {
         JSON.stringify({ error: "Password must be at least 6 characters long" }),
         {
           status: 400,
-          headers: { 
+          headers: {
             "Content-Type": "application/json",
             "Access-Control-Allow-Origin": "*",
             "Access-Control-Allow-Methods": "POST, OPTIONS",
@@ -111,7 +111,7 @@ serve(async (req) => {
         JSON.stringify({ error: "Server configuration error" }),
         {
           status: 500,
-          headers: { 
+          headers: {
             "Content-Type": "application/json",
             "Access-Control-Allow-Origin": "*",
             "Access-Control-Allow-Methods": "POST, OPTIONS",
@@ -125,22 +125,22 @@ serve(async (req) => {
     console.log("Checking if user exists:", { email: userEmail });
     try {
       const { data: existingUsers, error: checkError } = await supabaseAdmin.auth.admin.listUsers();
-      
+
       if (!checkError && existingUsers?.users) {
-        const userExists = existingUsers.users.some(user => 
+        const userExists = existingUsers.users.some(user =>
           user.email?.toLowerCase() === userEmail.toLowerCase()
         );
-        
+
         if (userExists) {
           console.log("User already exists with email:", userEmail);
           return new Response(
-            JSON.stringify({ 
+            JSON.stringify({
               error: "A user with this email address already exists",
               code: "USER_ALREADY_EXISTS"
             }),
             {
               status: 409, // Conflict status code
-              headers: { 
+              headers: {
                 "Content-Type": "application/json",
                 "Access-Control-Allow-Origin": "*",
                 "Access-Control-Allow-Methods": "POST, OPTIONS",
@@ -172,20 +172,20 @@ serve(async (req) => {
 
     if (userError) {
       console.error("Error creating user:", userError);
-      
+
       // Check if error is due to duplicate email
-      if (userError.message?.includes("already registered") || 
-          userError.message?.includes("already exists") ||
-          userError.message?.includes("User already registered") ||
-          userError.message?.includes("email address is already")) {
+      if (userError.message?.includes("already registered") ||
+        userError.message?.includes("already exists") ||
+        userError.message?.includes("User already registered") ||
+        userError.message?.includes("email address is already")) {
         return new Response(
-          JSON.stringify({ 
+          JSON.stringify({
             error: "A user with this email address already exists",
             code: "USER_ALREADY_EXISTS"
           }),
           {
             status: 409, // Conflict status code
-            headers: { 
+            headers: {
               "Content-Type": "application/json",
               "Access-Control-Allow-Origin": "*",
               "Access-Control-Allow-Methods": "POST, OPTIONS",
@@ -194,15 +194,15 @@ serve(async (req) => {
           }
         );
       }
-      
+
       return new Response(
-        JSON.stringify({ 
+        JSON.stringify({
           error: `Failed to create user: ${userError.message}`,
           details: userError
         }),
         {
           status: 500,
-          headers: { 
+          headers: {
             "Content-Type": "application/json",
             "Access-Control-Allow-Origin": "*",
             "Access-Control-Allow-Methods": "POST, OPTIONS",
@@ -218,7 +218,7 @@ serve(async (req) => {
         JSON.stringify({ error: "User creation failed - no user data returned" }),
         {
           status: 500,
-          headers: { 
+          headers: {
             "Content-Type": "application/json",
             "Access-Control-Allow-Origin": "*",
           },
@@ -253,7 +253,7 @@ serve(async (req) => {
       cause: error.cause,
     });
     return new Response(
-      JSON.stringify({ 
+      JSON.stringify({
         error: error.message || "Internal server error",
         type: error.name || "UnknownError",
       }),
@@ -269,4 +269,3 @@ serve(async (req) => {
     );
   }
 });
-
