@@ -423,7 +423,11 @@ const CertificatesPage: React.FC = () => {
                     </div>
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2 mb-1.5 sm:mb-2">
-                        <p className="font-semibold text-xs sm:text-sm lg:text-base text-gray-900">{cert.name}</p>
+                        <p className="font-bold text-xs sm:text-sm lg:text-base text-gray-900 uppercase">
+                          {cert.groomName && cert.brideName
+                            ? `${cert.groomName} & ${cert.brideName}`
+                            : cert.groomName || cert.brideName || 'N/A'}
+                        </p>
                         <Badge variant="success" className="!text-[10px] sm:!text-xs">
                           Verified
                         </Badge>
@@ -431,20 +435,8 @@ const CertificatesPage: React.FC = () => {
 
                       {cert.certificateNumber && (
                         <div className="flex items-center gap-1.5 mb-1 sm:mb-1.5">
-                          <Hash size={12} className="sm:w-3.5 sm:h-3.5 text-gray-400 flex-shrink-0" />
                           <p className="text-[11px] sm:text-sm lg:text-base text-gray-900 font-mono font-bold uppercase tracking-wider">
-                            {cert.certificateNumber}
-                          </p>
-                        </div>
-                      )}
-
-                      {(cert.groomName || cert.brideName) && (
-                        <div className="flex items-center gap-1.5 mb-1 sm:mb-1.5">
-                          <Users size={12} className="sm:w-3.5 sm:h-3.5 text-gray-400 flex-shrink-0" />
-                          <p className="text-[11px] sm:text-sm lg:text-base text-gray-900 font-bold">
-                            {cert.groomName && cert.brideName
-                              ? `${cert.groomName} & ${cert.brideName}`
-                              : cert.groomName || cert.brideName || 'N/A'}
+                            Certificate: {cert.certificateNumber}
                           </p>
                         </div>
                       )}
