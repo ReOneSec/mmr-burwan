@@ -270,7 +270,7 @@ const styles = StyleSheet.create({
   },
   consecutiveText: {
     fontFamily: 'Times',
-    fontSize: 10,
+    fontSize: 11,
     color: BLACK,
   },
   boldText: {
@@ -568,7 +568,7 @@ export const CertificatePDF: React.FC<CertificatePDFProps> = ({
           {/* Certificate Number Row */}
           <View style={styles.consecutiveRow}>
             <Text style={styles.consecutiveText}>
-              <Text style={styles.boldText}>Certificate Number: </Text>{certificateData.consecutiveNumber}
+              <Text style={styles.boldText}>Certificate Number: {certificateData.consecutiveNumber}</Text>
             </Text>
             <Text style={styles.consecutiveText}>
               <Text style={styles.boldText}>Registration Date: {safeFormatDate(certificateData.registrationDate, 'dd-MM-yyyy')}</Text>
