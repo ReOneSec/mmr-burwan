@@ -85,6 +85,7 @@ const ClientsPage: React.FC = () => {
     applicationId: string;
     certificateNumber?: string;
     registrationDate?: string;
+    certificateDetails?: CertificateDetails;
   }>({
     isOpen: false,
     applicationId: '',
@@ -587,6 +588,7 @@ const ClientsPage: React.FC = () => {
                                 applicationId: client.application!.id,
                                 certificateNumber: client.application?.certificateNumber,
                                 registrationDate: client.application?.registrationDate,
+                                certificateDetails: client.application?.certificateDetails,
                               });
                             }}
                           >
@@ -823,6 +825,7 @@ const ClientsPage: React.FC = () => {
                                     applicationId: client.application!.id,
                                     certificateNumber: client.application?.certificateNumber,
                                     registrationDate: client.application?.registrationDate,
+                                    certificateDetails: client.application?.certificateDetails,
                                   });
                                 }}
                               >
@@ -890,6 +893,7 @@ const ClientsPage: React.FC = () => {
         applicationId={verifyModalState.applicationId}
         currentCertificateNumber={verifyModalState.certificateNumber}
         currentRegistrationDate={verifyModalState.registrationDate}
+        initialCertificateDetails={verifyModalState.certificateDetails}
       />
 
       {/* Delete Application Confirmation Modal */}
